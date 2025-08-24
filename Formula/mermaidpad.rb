@@ -1,29 +1,29 @@
 class Mermaidpad < Formula
   desc "Minimal cross-platform Mermaid diagram editor built with .NET 9 + Avalonia"
   homepage "https://github.com/udlose/MermaidPad"
-  version "1.0.0"
+  version "1.0.1"
 
   on_macos do
     on_arm do
       url "https://github.com/udlose/MermaidPad/releases/download/v#{version}/MermaidPad-#{version}-osx-arm64.zip"
-      sha256 "ba1be2cc53304efab367810db2cb5893c2215252b5aba2c3d2b3e2596732dd4b"
+      sha256 "f5d4d73b8990489ad2119de30d1c57ac5c846020e16f1b59815c705fb3183fde"
     end
 
     on_intel do
       url "https://github.com/udlose/MermaidPad/releases/download/v#{version}/MermaidPad-#{version}-osx-x64.zip"
-      sha256 "7c8f8eaefac1c125519496928ed83f879fcccd3f9b29b0a97f18b383fd8c917c"
+      sha256 "64d65eabd582166b32d2d1aaf8ce49715831f4b23b5d94b90b15bbfe96f8c29e"
     end
   end
 
   on_linux do
     on_arm do
       url "https://github.com/udlose/MermaidPad/releases/download/v#{version}/MermaidPad-#{version}-linux-arm64.zip"
-      sha256 "2f4264bd6d4016a21df68d0b80cff814e8c13b2310faf4fcb20ff0694619bdbe"
+      sha256 "5879cb7f5eb64b3a89719a1650cf0fcdd350b0b68712c6f93b340b6285fa6480"
     end
 
     on_intel do
       url "https://github.com/udlose/MermaidPad/releases/download/v#{version}/MermaidPad-#{version}-linux-x64.zip"
-      sha256 "f9051c8297ba20908ad942675d04690906ded7d9dbf276cb74fcd9fda8927454"
+      sha256 "6f35fbe74159a8a2be6608ba33a25256027b0bce455616c18e5a2ad4c7df4b32"
     end
   end
 
