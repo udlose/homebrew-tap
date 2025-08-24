@@ -1,0 +1,97 @@
+name: Update MermaidPad Cask
+
+on:
+  schedule:
+    - cron: '0 1 * * *' # daily at 1am UTC
+  workflow_dispatch:
+
+jobs:
+  update-cask:
+    runs-on: macos-latest
+    env:
+      CASK_PATH: Casks/mermaidpad.rb
+      REPO: udlose/MermaidPad
+      TAP_REPO: udlose/homebrew-tap
+    steps:
+      - name: Checkout tap repo
+        uses: actions/checkout@v4
+
+      - name: Get latest MermaidPad release info
+        id: release
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const response = await github.rest.repos.getLatestRelease({
+              owner: 'udlose',
+              repo: 'MermaidPad'
+            });
+            return {
+              version: response.data.tag_name.replace(/^v/, ''),
+              url_x64: response.data.assets.find(a => a.name.endsWith('osx-x64.app.zip'))?.browser_download_url,
+              url_arm64: response.data.assets.find(a => a.name.endsWith('osx-arm64.app.zip'))?.browser_download_url
+            };
+
+      - name: Parse release info
+        id: parse
+        run: |
+          echo "version=$(echo '${{ steps.release.outputs.result }}' | jq -r .version)" >> $GITHUB_OUTPUT
+          echo "url_x64=$(echo '${{ steps.release.outputs.result }}' | jq -r .url_x64)" >> $GITHUB_OUTPUT
+          echo "url_arm64=$(echo '${{ steps.release.outputs.result }}' | jq -r .url_arm64)" >> $GITHUB_OUTPUT
+
+      - name: Check if Cask is up to date
+        id: check
+        run: |
+          current_version=$(grep 'version "' ${{ env.CASK_PATH }} | sed 's/version "\(.*\)"/\1/')
+          if [ "$current_version" = "${{ steps.parse.outputs.version }}" ]; then
+            echo "Cask is up to date."
+            echo "update_needed=false" >> $GITHUB_OUTPUT
+          else
+            echo "update_needed=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Download MermaidPad .app bundles
+        if: steps.check.outputs.update_needed == 'true'
+        run: |
+          curl -L -o MermaidPad-${{ steps.parse.outputs.version }}-osx-x64.app.zip "${{ steps.parse.outputs.url_x64 }}"
+          curl -L -o MermaidPad-${{ steps.parse.outputs.version }}-osx-arm64.app.zip "${{ steps.parse.outputs.url_arm64 }}"
+
+      - name: Calculate SHA256
+        if: steps.check.outputs.update_needed == 'true'
+        id: sha
+        run: |
+          echo "sha_x64=$(shasum -a 256 MermaidPad-${{ steps.parse.outputs.version }}-osx-x64.app.zip | awk '{print $1}')" >> $GITHUB_OUTPUT
+          echo "sha_arm64=$(shasum -a 256 MermaidPad-${{ steps.parse.outputs.version }}-osx-arm64.app.zip | awk '{print $1}')" >> $GITHUB_OUTPUT
+
+      - name: Update Cask file
+        if: steps.check.outputs.update_needed == 'true'
+        run: |
+          sed -i '' "s/version \".*\"/version \"${{ steps.parse.outputs.version }}\"/" ${{ env.CASK_PATH }}
+          sed -i '' "s|sha256 arm:   \".*\",|sha256 arm:   \"${{ steps.sha.outputs.sha_arm64 }}\",|" ${{ env.CASK_PATH }}
+          sed -i '' "s|intel: \".*\"|intel: \"${{ steps.sha.outputs.sha_x64 }}\"|" ${{ env.CASK_PATH }}
+
+      - name: Create Pull Request
+        if: steps.check.outputs.update_needed == 'true'
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GH_PAT }}
+          commit-message: "Update MermaidPad Cask to v${{ steps.parse.outputs.version }}"
+          branch: update-mermaidpad-cask-v${{ steps.parse.outputs.version }}
+          title: "Update MermaidPad Cask to v${{ steps.parse.outputs.version }}"
+          body: "Automated update for MermaidPad Cask to v${{ steps.parse.outputs.version }}."
+          base: main
+
+      - name: Send email notification
+        if: steps.check.outputs.update_needed == 'true'
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: ${{ secrets.SMTP_SERVER }}
+          server_port: ${{ secrets.SMTP_PORT }}
+          username: ${{ secrets.SMTP_USERNAME }}
+          password: ${{ secrets.SMTP_PASSWORD }}
+          subject: "MermaidPad Cask updated to v${{ steps.parse.outputs.version }}"
+          to: ${{ github.actor }}@users.noreply.github.com
+          from: ${{ secrets.SMTP_USERNAME }}
+          body: |
+            The MermaidPad Cask has been updated to v${{ steps.parse.outputs.version }}.
+            A pull request has been created in udlose/homebrew-tap.
+            Please review and merge if correct.
