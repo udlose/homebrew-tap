@@ -1,9 +1,9 @@
 cask "mermaidpad" do
-  version "1.0.1"
+  version "1.0.2"
   arch arm: "arm64", intel: "x64"
 
-  sha256 arm:   "f5d4d73b8990489ad2119de30d1c57ac5c846020e16f1b59815c705fb3183fde",
-         intel: "64d65eabd582166b32d2d1aaf8ce49715831f4b23b5d94b90b15bbfe96f8c29e"
+  sha256 arm:   "55360edb70be7f0420c4216d7a1540c0c78b14b2dedea1d4d7edf01115ee1104",
+         intel: "8909c79a7cc3350541dd858ef88575a5a9aafb9b162da608e3fa2a34532f869c"
 
   url "https://github.com/udlose/MermaidPad/releases/download/v#{version}/MermaidPad-#{version}-osx-#{arch}.app.zip"
   name "MermaidPad"
