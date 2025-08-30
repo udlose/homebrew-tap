@@ -72,6 +72,7 @@ jobs:
       - name: Update Cask file
         if: steps.check.outputs.update_needed == 'true'
         run: |
+          # Update version, always strip leading whitespace
           sed -i '' "s/^[[:space:]]*version \".*/version \"${{ steps.parse.outputs.version }}\"/" ${{ env.CASK_PATH }}
           
           # Update SHA256 hashes with specific patterns to avoid conflicts
