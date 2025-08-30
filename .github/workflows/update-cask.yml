@@ -43,7 +43,7 @@ jobs:
       - name: Check if Cask is up to date
         id: check
         run: |
-          current_version=$(grep 'version "' ${{ env.CASK_PATH }} | sed 's/.*version "\(.*\)".*/\1/')
+          current_version=$(grep 'version "' ${{ env.CASK_PATH }} | sed 's/.*version "\([^"]*\)".*/\1/')
           echo "current_version=$current_version"
           echo "latest_version=${{ steps.parse.outputs.version }}"
           if [ "$current_version" = "${{ steps.parse.outputs.version }}" ]; then
@@ -72,8 +72,8 @@ jobs:
       - name: Update Cask file
         if: steps.check.outputs.update_needed == 'true'
         run: |
-          # Update version, always strip leading whitespace
-          sed -i '' "s/^[[:space:]]*version \".*/version \"${{ steps.parse.outputs.version }}\"/" ${{ env.CASK_PATH }}
+          # Update version, preserving indentation (2 spaces)
+          sed -i '' -E "s/^([[:space:]]*)version \".*/\1version \"${{ steps.parse.outputs.version }}\"/" ${{ env.CASK_PATH }}
           
           # Update SHA256 hashes with specific patterns to avoid conflicts
           # Update ARM64 hash (targets the sha256 arm: line specifically)
