@@ -67,9 +67,15 @@ jobs:
       - name: Update Cask file
         if: steps.check.outputs.update_needed == 'true'
         run: |
+          # Update version
           sed -i '' "s/version \".*\"/version \"${{ steps.parse.outputs.version }}\"/" ${{ env.CASK_PATH }}
-          sed -i '' "s|sha256 arm:   \".*\",|sha256 arm:   \"${{ steps.sha.outputs.sha_arm64 }}\",|" ${{ env.CASK_PATH }}
-          sed -i '' "s|intel: \".*\"|intel: \"${{ steps.sha.outputs.sha_x64 }}\"|" ${{ env.CASK_PATH }}
+          
+          # Update SHA256 hashes with specific patterns to avoid conflicts
+          # Update ARM64 hash (targets the sha256 arm: line specifically)
+          sed -i '' "/sha256 arm:/s/\".*\",/\"${{ steps.sha.outputs.sha_arm64 }}\",/" ${{ env.CASK_PATH }}
+          
+          # Update Intel hash (targets only indented intel: lines, not the arch line)
+          sed -i '' "/^[[:space:]]*intel:/s/\".*\"/\"${{ steps.sha.outputs.sha_x64 }}\"/" ${{ env.CASK_PATH }}
 
       - name: Create Pull Request
         if: steps.check.outputs.update_needed == 'true'
