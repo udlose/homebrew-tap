@@ -44,6 +44,13 @@ jobs:
         id: check
         run: |
           current_version=$(grep 'version "' ${{ env.CASK_PATH }} | sed 's/.*version "\([^"]*\)".*/\1/')
+
+          # Validate that current_version is non-empty and matches a version pattern (digits, dots, optional letters)
+          if [[ -z "$current_version" || ! "$current_version" =~ ^[0-9A-Za-z._-]+$ ]]; then
+            echo "Error: Failed to extract a valid version from ${{ env.CASK_PATH }} (got: '$current_version')" >&2
+            exit 1
+          fi
+
           echo "current_version=$current_version"
           echo "latest_version=${{ steps.parse.outputs.version }}"
           if [ "$current_version" = "${{ steps.parse.outputs.version }}" ]; then
