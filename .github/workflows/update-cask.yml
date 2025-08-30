@@ -44,12 +44,17 @@ jobs:
         id: check
         run: |
           current_version=$(grep 'version "' ${{ env.CASK_PATH }} | sed 's/version "\(.*\)"/\1/')
+          echo "current_version=$current_version"
+          echo "latest_version=${{ steps.parse.outputs.version }}"
           if [ "$current_version" = "${{ steps.parse.outputs.version }}" ]; then
             echo "Cask is up to date."
-            echo "update_needed=false" >> $GITHUB_OUTPUT
+            echo "update_needed=false" | tee -a $GITHUB_OUTPUT
           else
-            echo "update_needed=true" >> $GITHUB_OUTPUT
+            echo "update_needed=true" | tee -a $GITHUB_OUTPUT
+            echo "Cask is NOT up to date."
           fi
+          echo "Contents of \$GITHUB_OUTPUT:"
+          cat $GITHUB_OUTPUT
 
       - name: Download MermaidPad .app bundles
         if: steps.check.outputs.update_needed == 'true'
