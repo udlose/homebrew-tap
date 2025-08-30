@@ -79,6 +79,7 @@ jobs:
 
       - name: Create Pull Request
         if: steps.check.outputs.update_needed == 'true'
+        id: create_pr
         uses: peter-evans/create-pull-request@v5
         with:
           token: ${{ secrets.GH_PAT }}
@@ -88,8 +89,9 @@ jobs:
           body: "Automated update for MermaidPad Cask to v${{ steps.parse.outputs.version }}."
           base: main
 
-      - name: Send email notification
-        if: steps.check.outputs.update_needed == 'true'
+      # Email notification when PR is created (update was needed)
+      - name: Send email notification - PR created
+        if: steps.check.outputs.update_needed == 'true' && steps.create_pr.outputs.pull-request-url != ''
         uses: dawidd6/action-send-mail@v3
         with:
           server_address: ${{ secrets.SMTP_SERVER }}
@@ -101,5 +103,19 @@ jobs:
           from: ${{ secrets.SMTP_USERNAME }}
           body: |
             The MermaidPad Cask has been updated to v${{ steps.parse.outputs.version }}.
-            A pull request has been created in udlose/homebrew-tap.
+            A pull request has been created in udlose/homebrew-tap: ${{ steps.create_pr.outputs.pull-request-url }}
             Please review and merge if correct.
+
+      # Email notification when no update is needed
+      - name: Send email notification - No update needed
+        if: steps.check.outputs.update_needed == 'false'
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: ${{ secrets.SMTP_SERVER }}
+          server_port: ${{ secrets.SMTP_PORT }}
+          username: ${{ secrets.SMTP_USERNAME }}
+          password: ${{ secrets.SMTP_PASSWORD }}
+          subject: "Latest version of MermaidPad v${{ steps.parse.outputs.version }} detected. No PR necessary."
+          to: ${{ github.actor }}@users.noreply.github.com
+          from: ${{ secrets.SMTP_USERNAME }}
+          body: ""
