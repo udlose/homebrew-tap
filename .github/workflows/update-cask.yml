@@ -118,4 +118,5 @@ jobs:
           subject: "Latest version of MermaidPad v${{ steps.parse.outputs.version }} detected. No PR necessary."
           to: ${{ github.actor }}@users.noreply.github.com
           from: ${{ secrets.SMTP_USERNAME }}
-          body: ""
+          body: |
+            The MermaidPad Cask is already at the latest version v${{ steps.parse.outputs.version }}. No update is required. https://github.com/udlose/homebrew-tap
