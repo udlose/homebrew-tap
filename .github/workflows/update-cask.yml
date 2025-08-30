@@ -99,12 +99,13 @@ jobs:
           username: ${{ secrets.SMTP_USERNAME }}
           password: ${{ secrets.SMTP_PASSWORD }}
           subject: "MermaidPad Cask updated to v${{ steps.parse.outputs.version }}"
-          to: ${{ secrets.SMTP_USERNAME }}
-          from: ${{ github.actor }}@users.noreply.github.com
+          to: ${{ secrets.NOTIFY_EMAIL }}
+          from: ${{ secrets.SMTP_USERNAME }}
           body: |
             The MermaidPad Cask has been updated to v${{ steps.parse.outputs.version }}.
             A pull request has been created in udlose/homebrew-tap: ${{ steps.create_pr.outputs.pull-request-url }}
             Please review and merge if correct.
+            Triggered by: ${{ github.actor }}
 
       # Email notification when no update is needed
       - name: Send email notification - No update needed
@@ -116,7 +117,9 @@ jobs:
           username: ${{ secrets.SMTP_USERNAME }}
           password: ${{ secrets.SMTP_PASSWORD }}
           subject: "Latest version of MermaidPad v${{ steps.parse.outputs.version }} detected. No PR necessary."
-          to: ${{ secrets.SMTP_USERNAME }}
-          from: ${{ github.actor }}@users.noreply.github.com
+          to: ${{ secrets.NOTIFY_EMAIL }}
+          from: ${{ secrets.SMTP_USERNAME }}
           body: |
-            The MermaidPad Cask is already at the latest version v${{ steps.parse.outputs.version }}. No update is required. https://github.com/udlose/homebrew-tap
+            The MermaidPad Cask is already at the latest version v${{ steps.parse.outputs.version }}.
+            No update is required. https://github.com/udlose/homebrew-tap
+            Triggered by: ${{ github.actor }}
