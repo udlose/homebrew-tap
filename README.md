@@ -1,6 +1,7 @@
 # udlose's Homebrew Tap
 
 [![Update MermaidPad Cask](https://github.com/udlose/homebrew-tap/actions/workflows/update-cask.yml/badge.svg)](https://github.com/udlose/homebrew-tap/actions/workflows/update-cask.yml)
+[![CodeQL](https://github.com/udlose/homebrew-tap/actions/workflows/codeql.yml/badge.svg)](https://github.com/udlose/homebrew-tap/actions/workflows/codeql.yml)
 
 ---
 
