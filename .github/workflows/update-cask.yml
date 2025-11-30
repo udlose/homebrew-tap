@@ -4,7 +4,7 @@ name: Update MermaidPad Cask
 
 on:
   schedule:
-    - cron: '0 1 * * *' # daily at 1am UTC
+    - cron: '5 6 * * 1' # weekly on Mondays at 6:05 AM UTC
   workflow_dispatch:
 
 jobs:
