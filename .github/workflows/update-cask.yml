@@ -102,7 +102,7 @@ jobs:
       - name: Create Pull Request
         if: steps.check.outputs.update_needed == 'true'
         id: create_pr
-        uses: peter-evans/create-pull-request@4e1beaa7521e8b457b572c090b25bd3db56bf1c5 # v5.0.3
+        uses: step-security/create-pull-request@b95dd83efc7d41445ba0cf2e9e59ff6a1b78c8d3 # v8.0.0
         with:
           token: ${{ secrets.GH_PAT }}
           commit-message: "Update MermaidPad Cask to v${{ steps.parse.outputs.version }}"
@@ -114,7 +114,7 @@ jobs:
       # Email notification when PR is created (update was needed)
       - name: Send email notification - PR created
         if: steps.check.outputs.update_needed == 'true' && steps.create_pr.outputs.pull-request-url != ''
-        uses: dawidd6/action-send-mail@4226df7daafa6fc901a43789c49bf7ab309066e7 # v3.11.0
+        uses: step-security/action-send-mail@7238bab69680f644f9eab409cec92179d1d2f0ce # v6.0.1
         with:
           server_address: ${{ secrets.SMTP_SERVER }}
           server_port: ${{ secrets.SMTP_PORT }}
@@ -132,7 +132,7 @@ jobs:
       # Email notification when no update is needed
       - name: Send email notification - No update needed
         if: steps.check.outputs.update_needed == 'false'
-        uses: dawidd6/action-send-mail@4226df7daafa6fc901a43789c49bf7ab309066e7 # v3.11.0
+        uses: step-security/action-send-mail@7238bab69680f644f9eab409cec92179d1d2f0ce # v6.0.1
         with:
           server_address: ${{ secrets.SMTP_SERVER }}
           server_port: ${{ secrets.SMTP_PORT }}
